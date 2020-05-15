@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net"
 	"sync"
+	"time"
 )
 
 type volatileState struct {
@@ -28,16 +28,34 @@ var mutex *sync.Mutex
 func main() {
 	fmt.Println("hello guid world")
 	// generate unoptimal alg first (read/write to shared storage per GUID, )
-	fmt.Println("Printing Mac Address/es")
-	_, err := getMacAddress()
-	if err != nil {
-		log.Fatal(err)
-	}
-
+	fmt.Println("time stamp:")
+	fmt.Println(getTimestamp())
 }
 
 // Returns the current UTC time as a 60-bit count of 100-nanosecond intervals since 00:00:00.00, 15 October 1582
 func getTimestamp() uint64 {
+	// nanoseconds since 1 Jan 1970
+	t := time.Now().UnixNano()
+	// convert 't' to count of 100 ns (1e-7)
+	t = t / 100
+	// add 100 ns count from 15 October 1582 to 1 Jan 1970
+	// use Julian date
+	gregorianEpoch := 2299160
+	unixEpoch := 2440587
+	daysBetween := unixEpoch - gregorianEpoch
+	secondsBetween := daysBetween * 86400
+	// 100 ns interval
+	nsInterval := int64(secondsBetween * 10000000)
+
+	// total
+	t = t + nsInterval
+	u := uint64(t)
+
+	return u
+}
+
+// Returns the current clock sequence from the stable store and/or creates a new one and updates the store
+func getClockSequence() uint16 {
 	return 0
 }
 
@@ -52,6 +70,7 @@ func getMacAddress() ([6]byte, error) {
 	var addr net.HardwareAddr
 	for _, v := range interfaces {
 		a := v.HardwareAddr.String()
+		fmt.Println("Flags for ", v.Name, ": ", v.Flags&net.FlagUp)
 		if a != "" && v.Name == "en0" {
 			addr = v.HardwareAddr
 		}
@@ -94,12 +113,16 @@ func getGUIDV1() {
 	guid := GUID{}
 	// 1) call mutex
 	mutex.Lock()
+
+	// 2) read generator state from file
+
 	// 4) get current node ID (In GUID/UUID v1, this is the current system's MAC Address)
 	var err error
 	guid.node, err = getMacAddress()
 	if err != nil {
 		fmt.Println("Error with getMacAddress")
 	}
+
 	// 8) unlock mutex
 	mutex.Unlock()
 
