@@ -7,12 +7,14 @@ import (
 	"time"
 )
 
-// GUIDV4
-// generate a GUID of version 4
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
+
+// GUIDV4 generates a GUID of version 4
 func GUIDV4() string {
 	// 	Generate 16 random bytes (=128 bits)
 	bytes := make([]byte, 16)
-	rand.Seed(time.Now().UnixNano())
 	rand.Read(bytes)
 	//  Adjust certain bits according to RFC 4122 section 4.4 as follows:
 	// 		a) set the four most significant bits of the 7th byte to 0100'B, so the high nibble is "4"
