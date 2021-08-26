@@ -1,4 +1,4 @@
-# guid-generator
+# guids
 GUID/UUID Version 4 implementation in Go.
 
 Implementation adheres to all constraints provided by [RFC 4122](https://tools.ietf.org/pdf/rfc4122.pdf).
@@ -7,12 +7,12 @@ Implementation adheres to all constraints provided by [RFC 4122](https://tools.i
 
 Install the package in your project:
 ```
-go install tanneroakes.com/guids
+go install github.com/Oakes6/guids
 ```
 
 Import locally:
 ```
-import "tanneroakes.com/guids"
+import "github.com/Oakes6/guids"
 ```
 
 Generate version 4 GUIDS/UUIDS!
